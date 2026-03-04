@@ -27,7 +27,7 @@ import photoshoot2 from "../assets/photoshoot2.png";
 import { getAuth, logout } from "./auth/useAuth";
 
 // ── API CONFIG ──
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 // ── API HELPERS ──
 const fetchCategories = async () => {
