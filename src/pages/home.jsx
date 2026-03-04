@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Link } from "react-router-dom";
 import {
   ArrowRight,
   Battery,
@@ -207,9 +208,9 @@ const HomePage = () => {
         </div>
 
         <div className="hidden md:flex gap-8 items-center text-[10px] font-bold uppercase tracking-[0.3em]">
-          <a href="/products" className="hover:text-[#ed1b35] transition">
+          <Link to="/products" className="hover:text-[#ed1b35] transition">
             Products
-          </a>
+          </Link>
           <a href="#contact" className="hover:text-[#ed1b35] transition">
             Contact
           </a>
@@ -231,12 +232,12 @@ const HomePage = () => {
               </button>
             </div>
           ) : (
-            <a
-              href="/login"
+            <Link
+              to="/login"
               className="bg-[#ed1b35] px-6 py-2 hover:bg-white hover:text-black transition-all"
             >
               Login
-            </a>
+            </Link>
           )}
         </div>
 
@@ -249,13 +250,13 @@ const HomePage = () => {
 
         {isMenuOpen && (
           <div className="absolute top-full left-0 right-0 bg-black/95 border-t border-zinc-800 p-6 flex flex-col gap-6 md:hidden animate-in slide-in-from-top">
-            <a
-              href="/products"
+            <Link
+              to="/products"
               className="text-sm font-bold uppercase tracking-widest"
               onClick={() => setIsMenuOpen(false)}
             >
               Products
-            </a>
+            </Link>
             <a
               href="#contact"
               className="text-sm font-bold uppercase tracking-widest"
@@ -280,13 +281,13 @@ const HomePage = () => {
                 </button>
               </div>
             ) : (
-              <a
-                href="/login"
+              <Link
+                to="/login"
                 className="bg-[#ed1b35] px-6 py-3 text-center font-bold uppercase text-xs"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Login
-              </a>
+              </Link>
             )}
           </div>
         )}
@@ -348,12 +349,6 @@ const HomePage = () => {
                   satisfaction has made us the trusted choice for vehicle
                   owners, dealers, and service centers nationwide.
                 </p>
-                {/* <a
-                  href="/about"
-                  className="inline-flex items-center gap-2 text-[#ed1b35] font-bold hover:gap-4 transition-all text-sm uppercase tracking-widest"
-                >
-                  Learn More <ArrowRight className="h-4 w-4" />
-                </a> */}
               </div>
               <div className="relative">
                 <img
@@ -419,9 +414,9 @@ const HomePage = () => {
                         idx === categories.length - 1 &&
                         categories.length % 2 !== 0;
                       return (
-                        <a
+                        <Link
                           key={cat._id}
-                          href={`/products?category=${cat._id}`}
+                          to={`/products?category=${cat._id}`}
                           className={`group relative overflow-hidden rounded-lg bg-zinc-900 border border-zinc-800 hover:border-[#ed1b35] transition-all duration-300 hover:shadow-lg hover:shadow-[#ed1b35]/10 ${isLastOdd ? "sm:col-span-2 lg:col-span-1" : ""}`}
                         >
                           <div className="p-8">
@@ -441,7 +436,7 @@ const HomePage = () => {
                             </span>
                           </div>
                           <div className="absolute bottom-0 right-0 w-32 h-32 bg-[#ed1b35] opacity-5 rounded-tl-full" />
-                        </a>
+                        </Link>
                       );
                     })}
                   </div>
@@ -569,7 +564,6 @@ const HomePage = () => {
                               </div>
                               <div className="flex flex-col justify-center p-10 md:p-14">
                                 <span className="text-[10px] font-bold text-[#ed1b35] mb-3 uppercase tracking-[0.4em]">
-                                  {/* category is populated: { _id, name } */}
                                   {typeof product.category === "object"
                                     ? product.category.name
                                     : product.category}
@@ -582,13 +576,13 @@ const HomePage = () => {
                                     {product.description}
                                   </p>
                                 )}
-                                <a
-                                  href={`/products/${product._id}`}
+                                <Link
+                                  to={`/products/${product._id}`}
                                   className="inline-flex items-center justify-center gap-2 px-7 py-3 bg-[#ed1b35] text-white font-bold rounded hover:bg-[#c81529] transition-colors shadow-lg shadow-[#ed1b35]/20 w-fit text-sm uppercase tracking-widest"
                                 >
                                   View Details{" "}
                                   <ArrowRight className="h-4 w-4" />
-                                </a>
+                                </Link>
                               </div>
                             </div>
                           </div>

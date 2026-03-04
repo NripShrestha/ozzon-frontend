@@ -132,9 +132,9 @@ export function ProductsPage() {
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-zinc-600 mb-6">
-            <a href="/" className="hover:text-[#ed1b35] transition-colors">
+            <Link to="/" className="hover:text-[#ed1b35] transition-colors">
               Home
-            </a>
+            </Link>
             <span>/</span>
             <span className="text-zinc-400">Products</span>
             {activeCategoryName && activeCategoryName !== "All Products" && (

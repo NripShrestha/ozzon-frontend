@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import {
   ArrowRight,
   Eye,
@@ -12,7 +13,6 @@ import {
 } from "lucide-react";
 
 import logo from "../../assets/Logo.png";
-
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -239,11 +239,7 @@ const Register = () => {
 
         {/* Stats row */}
         <div style={{ display: "flex", gap: "40px" }}>
-          {[
-            // ["10M+", "Batteries Sold"],
-            // ["15+", "Years Experience"],
-            // ["50K+", "Partners"],
-          ].map(([num, label]) => (
+          {[].map(([num, label]) => (
             <div key={label}>
               <div
                 style={{
@@ -351,8 +347,8 @@ const Register = () => {
             style={{ color: "#52525b", fontSize: "13px", marginBottom: "36px" }}
           >
             Already have an account?{" "}
-            <a
-              href="/login"
+            <Link
+              to="/login"
               style={{
                 color: "#ed1b35",
                 fontWeight: 600,
@@ -360,7 +356,7 @@ const Register = () => {
               }}
             >
               Sign in
-            </a>
+            </Link>
           </p>
 
           {/* Success state */}
@@ -604,19 +600,19 @@ const Register = () => {
             }}
           >
             By registering, you agree to OZZON's{" "}
-            <a
-              href="/terms"
+            <Link
+              to="/terms"
               style={{ color: "#52525b", textDecoration: "underline" }}
             >
               Terms of Service
-            </a>{" "}
+            </Link>{" "}
             and{" "}
-            <a
-              href="/privacy"
+            <Link
+              to="/privacy"
               style={{ color: "#52525b", textDecoration: "underline" }}
             >
               Privacy Policy
-            </a>
+            </Link>
             .
           </p>
         </div>

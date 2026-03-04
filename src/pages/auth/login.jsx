@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   ArrowRight,
   Eye,
@@ -9,7 +10,6 @@ import {
   CheckCircle,
   Battery,
 } from "lucide-react";
-
 
 import logo from "../../assets/Logo.png";
 
@@ -186,11 +186,7 @@ const Login = () => {
 
         {/* Feature list */}
         <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-          {[
-            // "Access exclusive dealer pricing",
-            // "Manage product catalog",
-            // "Nationwide distribution network",
-          ].map((item) => (
+          {[].map((item) => (
             <div
               key={item}
               style={{ display: "flex", alignItems: "center", gap: "10px" }}
@@ -289,8 +285,8 @@ const Login = () => {
             style={{ color: "#52525b", fontSize: "13px", marginBottom: "36px" }}
           >
             Don't have an account?{" "}
-            <a
-              href="/register"
+            <Link
+              to="/register"
               style={{
                 color: "#ed1b35",
                 fontWeight: 600,
@@ -298,7 +294,7 @@ const Login = () => {
               }}
             >
               Create one
-            </a>
+            </Link>
           </p>
 
           {/* Success */}
@@ -467,8 +463,8 @@ const Login = () => {
             <div style={{ flex: 1, height: "1px", background: "#1f1f1f" }} />
           </div>
 
-          <a
-            href="/register"
+          <Link
+            to="/register"
             style={{
               display: "flex",
               alignItems: "center",
@@ -499,7 +495,7 @@ const Login = () => {
           >
             <Battery size={14} color="#ed1b35" />
             Create New Account
-          </a>
+          </Link>
 
           <p
             style={{
