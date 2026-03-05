@@ -17,6 +17,7 @@ import {
   LogOut,
   Loader2,
   AlertCircle,
+  ShoppingCart,
 } from "lucide-react";
 
 import ozzonVideo from "../assets/ozzon_scroll.mp4";
@@ -24,7 +25,7 @@ import logo from "../assets/Logo.png";
 import photoshoot2 from "../assets/photoshoot2.png";
 
 // Auth utilities
-import { getAuth, logout } from "./auth/useAuth";
+import { getAuth, logout, authFetch } from "./auth/useAuth";
 
 // ── API CONFIG ──
 const BASE_URL = import.meta.env.VITE_API_URL;
@@ -33,7 +34,7 @@ const BASE_URL = import.meta.env.VITE_API_URL;
 const fetchCategories = async () => {
   const res = await fetch(`${BASE_URL}/api/categories`);
   if (!res.ok) throw new Error("Failed to fetch categories");
-  return res.json(); // returns array of { _id, name, description, ... }
+  return res.json();
 };
 
 const fetchProducts = async ({
@@ -46,10 +47,24 @@ const fetchProducts = async ({
   if (category) params.set("category", category);
   const res = await fetch(`${BASE_URL}/api/products?${params}`);
   if (!res.ok) throw new Error("Failed to fetch products");
-  return res.json(); // { products, page, pages, total }
+  return res.json();
 };
 
-// Category icon map — falls back to Battery for unknown slugs
+const fetchCartCount = async () => {
+  try {
+    const res = await authFetch(`${BASE_URL}/api/cart`);
+    if (!res.ok) return 0;
+    const data = await res.json();
+    return (data.items ?? []).reduce(
+      (sum, item) => sum + (item.quantity || 1),
+      0,
+    );
+  } catch {
+    return 0;
+  }
+};
+
+// Category icon map
 const CATEGORY_ICONS = {
   default: Battery,
   lubricant: Droplet,
@@ -106,6 +121,9 @@ const HomePage = () => {
   // ── AUTH STATE ──
   const [auth, setAuth] = useState(() => getAuth());
 
+  // ── CART COUNT ──
+  const [cartCount, setCartCount] = useState(0);
+
   // ── DATA STATE ──
   const [categories, setCategories] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -126,6 +144,12 @@ const HomePage = () => {
       (prev) => (prev - 1 + featuredProducts.length) % featuredProducts.length,
     );
 
+  // ── FETCH CART COUNT (only if logged in) ──
+  useEffect(() => {
+    if (!auth) return;
+    fetchCartCount().then(setCartCount);
+  }, [auth]);
+
   // ── FETCH CATEGORIES ──
   useEffect(() => {
     setCategoriesLoading(true);
@@ -136,7 +160,7 @@ const HomePage = () => {
       .finally(() => setCategoriesLoading(false));
   }, []);
 
-  // ── FETCH FEATURED PRODUCTS (first page, 6 shown) ──
+  // ── FETCH FEATURED PRODUCTS ──
   useEffect(() => {
     setProductsLoading(true);
     setProductsError(null);
@@ -217,6 +241,20 @@ const HomePage = () => {
 
           {auth ? (
             <div className="flex items-center gap-4">
+              {/* Cart icon with badge */}
+              <Link
+                to="/cart"
+                className="relative flex items-center justify-center h-9 w-9 rounded-full border border-zinc-700 hover:border-[#ed1b35] transition-colors group"
+                aria-label="Cart"
+              >
+                <ShoppingCart className="h-4 w-4 text-zinc-400 group-hover:text-[#ed1b35] transition-colors" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 h-4 w-4 flex items-center justify-center rounded-full bg-[#ed1b35] text-white text-[9px] font-black leading-none">
+                    {cartCount > 9 ? "9+" : cartCount}
+                  </span>
+                )}
+              </Link>
+
               <span className="text-zinc-400 normal-case tracking-normal text-xs">
                 Hi,{" "}
                 <span className="text-white font-bold">
@@ -267,6 +305,19 @@ const HomePage = () => {
 
             {auth ? (
               <div className="flex flex-col gap-3">
+                <Link
+                  to="/cart"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest"
+                >
+                  <ShoppingCart className="h-4 w-4 text-[#ed1b35]" />
+                  Cart
+                  {cartCount > 0 && (
+                    <span className="ml-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#ed1b35] text-white text-[9px] font-black">
+                      {cartCount > 9 ? "9+" : cartCount}
+                    </span>
+                  )}
+                </Link>
                 <p className="text-zinc-400 text-xs">
                   Signed in as{" "}
                   <span className="text-white font-bold">
@@ -379,7 +430,6 @@ const HomePage = () => {
               </p>
             </div>
 
-            {/* Error state */}
             {categoriesError && (
               <div className="flex items-center justify-center gap-3 text-red-400 py-12">
                 <AlertCircle className="h-5 w-5 flex-shrink-0" />
@@ -389,7 +439,6 @@ const HomePage = () => {
               </div>
             )}
 
-            {/* Loading skeletons */}
             {categoriesLoading && !categoriesError && (
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {[...Array(5)].map((_, i) => (
@@ -398,7 +447,6 @@ const HomePage = () => {
               </div>
             )}
 
-            {/* Loaded categories */}
             {!categoriesLoading && !categoriesError && (
               <>
                 {categories.length === 0 ? (
@@ -409,7 +457,6 @@ const HomePage = () => {
                   <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                     {categories.map((cat, idx) => {
                       const Icon = getCategoryIcon(cat.name);
-                      // Make the last item span 2 cols on sm if total is odd
                       const isLastOdd =
                         idx === categories.length - 1 &&
                         categories.length % 2 !== 0;
@@ -513,7 +560,6 @@ const HomePage = () => {
               </p>
             </div>
 
-            {/* Error state */}
             {productsError && (
               <div className="flex items-center justify-center gap-3 text-red-400 py-12">
                 <AlertCircle className="h-5 w-5 flex-shrink-0" />
@@ -523,10 +569,8 @@ const HomePage = () => {
               </div>
             )}
 
-            {/* Loading skeleton */}
             {productsLoading && !productsError && <ProductSkeleton />}
 
-            {/* Empty state */}
             {!productsLoading &&
               !productsError &&
               featuredProducts.length === 0 && (
@@ -535,7 +579,6 @@ const HomePage = () => {
                 </p>
               )}
 
-            {/* Carousel */}
             {!productsLoading &&
               !productsError &&
               featuredProducts.length > 0 && (

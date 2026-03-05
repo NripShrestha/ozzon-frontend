@@ -1,6 +1,15 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, AlertCircle, ArrowRight, CheckCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  AlertCircle,
+  ArrowRight,
+  CheckCircle,
+  ShoppingCart,
+  LogIn,
+  Loader2,
+} from "lucide-react";
 import { useState, useEffect } from "react";
+import { getAuth, authFetch } from "../auth/useAuth";
 
 // ── API CONFIG ──
 const BASE_URL = import.meta.env.VITE_API_URL;
@@ -20,6 +29,15 @@ const fetchRelated = async (categoryId, excludeId) => {
   if (!res.ok) return [];
   const data = await res.json();
   return data.products.filter((p) => p._id !== excludeId).slice(0, 4);
+};
+
+const addToCartApi = async (productId, quantity = 1) => {
+  const res = await authFetch(`${BASE_URL}/api/cart`, {
+    method: "POST",
+    body: JSON.stringify({ productId, quantity }),
+  });
+  if (!res.ok) throw new Error("Failed to add to cart");
+  return res.json();
 };
 
 // ── HELPERS ──
@@ -71,6 +89,133 @@ const DetailSkeleton = () => (
   </div>
 );
 
+// ── ADD TO CART BUTTON ──
+const AddToCartButton = ({ productId }) => {
+  const navigate = useNavigate();
+  const auth = getAuth();
+
+  const [status, setStatus] = useState("idle"); // idle | loading | success | error
+  const [errorMsg, setErrorMsg] = useState("");
+  const [qty, setQty] = useState(1);
+
+  const handleAdd = async () => {
+    if (!auth) {
+      navigate("/login");
+      return;
+    }
+
+    setStatus("loading");
+    setErrorMsg("");
+
+    try {
+      await addToCartApi(productId, qty);
+      setStatus("success");
+      setTimeout(() => setStatus("idle"), 2500);
+    } catch (e) {
+      setStatus("error");
+      setErrorMsg(e.message);
+      setTimeout(() => setStatus("idle"), 3000);
+    }
+  };
+
+  if (!auth) {
+    return (
+      <div className="space-y-3">
+        <p className="text-xs text-zinc-500 flex items-center gap-2">
+          <LogIn className="h-3.5 w-3.5 text-[#ed1b35]" />
+          You must be logged in to add items to your cart.
+        </p>
+        <div className="flex items-center gap-3 flex-wrap">
+          <Link
+            to="/login"
+            className="inline-flex items-center gap-2 px-7 py-3.5 bg-[#ed1b35] text-white font-bold rounded hover:bg-[#c81529] transition-colors shadow-lg shadow-[#ed1b35]/20 text-sm uppercase tracking-widest"
+          >
+            <LogIn className="h-4 w-4" />
+            Login to Add to Cart
+          </Link>
+          <Link
+            to="/cart"
+            className="inline-flex items-center gap-2 px-7 py-3.5 border border-zinc-700 text-zinc-300 font-bold rounded hover:border-[#ed1b35] hover:text-[#ed1b35] transition-all text-sm uppercase tracking-widest"
+          >
+            <ShoppingCart className="h-4 w-4" />
+            View Cart
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {/* Qty selector */}
+      <div className="flex items-center gap-3">
+        <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
+          Qty
+        </span>
+        <div className="flex items-center border border-zinc-700 rounded overflow-hidden">
+          <button
+            onClick={() => setQty((q) => Math.max(1, q - 1))}
+            disabled={status === "loading"}
+            className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors disabled:opacity-40 text-sm font-bold"
+          >
+            −
+          </button>
+          <span className="px-5 py-2 text-sm font-black text-white bg-zinc-900 min-w-[48px] text-center">
+            {qty}
+          </span>
+          <button
+            onClick={() => setQty((q) => q + 1)}
+            disabled={status === "loading"}
+            className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors disabled:opacity-40 text-sm font-bold"
+          >
+            +
+          </button>
+        </div>
+      </div>
+
+      {/* Add to Cart + View Cart buttons — always both visible */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <button
+          onClick={handleAdd}
+          disabled={status === "loading" || status === "success"}
+          className={`inline-flex items-center gap-2.5 px-7 py-3.5 font-bold rounded transition-all shadow-lg text-sm uppercase tracking-widest disabled:cursor-not-allowed ${
+            status === "success"
+              ? "bg-green-600 text-white shadow-green-900/30"
+              : status === "error"
+                ? "bg-red-700 text-white shadow-red-900/30"
+                : "bg-[#ed1b35] text-white hover:bg-[#c81529] shadow-[#ed1b35]/20"
+          }`}
+        >
+          {status === "loading" && <Loader2 className="h-4 w-4 animate-spin" />}
+          {status === "success" && <CheckCircle className="h-4 w-4" />}
+          {(status === "idle" || status === "error") && (
+            <ShoppingCart className="h-4 w-4" />
+          )}
+          {status === "idle" && "Add to Cart"}
+          {status === "loading" && "Adding…"}
+          {status === "success" && "Added to Cart!"}
+          {status === "error" && "Failed — Retry"}
+        </button>
+
+        <Link
+          to="/cart"
+          className="inline-flex items-center gap-2 px-7 py-3.5 border border-zinc-700 text-zinc-300 font-bold rounded hover:border-[#ed1b35] hover:text-[#ed1b35] transition-all text-sm uppercase tracking-widest"
+        >
+          <ShoppingCart className="h-4 w-4" />
+          View Cart
+        </Link>
+      </div>
+
+      {status === "error" && errorMsg && (
+        <p className="text-xs text-red-400 flex items-center gap-1.5">
+          <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+          {errorMsg}
+        </p>
+      )}
+    </div>
+  );
+};
+
 export function ProductDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -103,7 +248,6 @@ export function ProductDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  // ── ERROR STATE ──
   if (!loading && error) {
     return (
       <div
@@ -133,7 +277,6 @@ export function ProductDetailPage() {
     ? parseSpecifications(product.specifications)
     : null;
 
-  // Clean features array — filter out any empty strings
   const features = product?.features?.filter((f) => f?.trim()) ?? [];
 
   return (
@@ -152,7 +295,6 @@ export function ProductDetailPage() {
             Back
           </button>
 
-          {/* Breadcrumb */}
           {product && (
             <div className="hidden md:flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-zinc-600">
               <a href="/" className="hover:text-[#ed1b35] transition-colors">
@@ -194,7 +336,6 @@ export function ProductDetailPage() {
                     }}
                   />
                 </div>
-                {/* Decorative glow */}
                 <div className="absolute -bottom-6 -right-6 w-48 h-48 bg-[#ed1b35] opacity-5 blur-3xl rounded-full pointer-events-none" />
               </div>
 
@@ -227,7 +368,7 @@ export function ProductDetailPage() {
 
                 {/* Stock badge */}
                 {product.stock !== undefined && (
-                  <div className="mb-8">
+                  <div className="mb-6">
                     <span
                       className={`inline-flex items-center gap-2 px-3 py-1.5 rounded text-xs font-bold uppercase tracking-widest border ${
                         product.stock > 0
@@ -244,6 +385,11 @@ export function ProductDetailPage() {
                     </span>
                   </div>
                 )}
+
+                {/* ── ADD TO CART ── */}
+                <div className="mb-8">
+                  <AddToCartButton productId={product._id} />
+                </div>
 
                 {/* Divider */}
                 <div className="border-t border-zinc-800 mb-8" />
@@ -285,11 +431,6 @@ export function ProductDetailPage() {
                     </div>
                   </div>
                 )}
-
-                {/* CTA */}
-                {/* <button className="w-full px-6 py-4 bg-[#ed1b35] text-white font-bold rounded hover:bg-[#c81529] transition-colors shadow-lg shadow-[#ed1b35]/20 uppercase tracking-widest text-sm">
-                  Inquire Now
-                </button> */}
               </div>
             </div>
           )}
@@ -300,7 +441,6 @@ export function ProductDetailPage() {
       {!loading && features.length > 0 && (
         <section className="py-16 bg-zinc-950 border-t border-zinc-800/60">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            {/* Section heading */}
             <div className="mb-10">
               <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#ed1b35] mb-3">
                 What Sets It Apart
@@ -310,14 +450,12 @@ export function ProductDetailPage() {
               </h2>
             </div>
 
-            {/* Features grid — 3 columns on lg, 2 on sm, 1 on mobile */}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {features.map((feature, index) => (
                 <div
                   key={index}
                   className="group flex items-center gap-4 bg-zinc-900 border border-zinc-800 hover:border-[#ed1b35]/40 rounded-lg px-5 py-4 transition-all duration-200 hover:bg-zinc-900/80"
                 >
-                  {/* Checkmark icon */}
                   <div className="flex-shrink-0 h-8 w-8 rounded-full bg-[#ed1b35]/10 border border-[#ed1b35]/20 group-hover:bg-[#ed1b35]/20 flex items-center justify-center transition-colors">
                     <CheckCircle className="h-4 w-4 text-[#ed1b35]" />
                   </div>
@@ -352,7 +490,6 @@ export function ProductDetailPage() {
               </Link>
             </div>
 
-            {/* Related skeletons */}
             {relatedLoading && (
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 {[...Array(4)].map((_, i) => (
@@ -370,7 +507,6 @@ export function ProductDetailPage() {
               </div>
             )}
 
-            {/* Related grid */}
             {!relatedLoading && related.length > 0 && (
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 {related.map((p) => (

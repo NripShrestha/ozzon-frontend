@@ -1,9 +1,14 @@
-// src/hooks/useAuth.js
-// Shared auth utilities — import anywhere
+// src/pages/auth/useAuth.js
+
+import { useEffect, useState } from "react";
 
 /**
- * Get the current logged-in user from localStorage
- * Returns { token, user } or null if not logged in
+ * Get the current logged-in user from localStorage.
+ * Returns { token, user } or null if not logged in.
+ *
+ * Keys used by Login.jsx / Register.jsx:
+ *   "ozzonToken"  — JWT string
+ *   "ozzonUser"   — JSON object { _id, name, email, role }
  */
 export const getAuth = () => {
   const token = localStorage.getItem("ozzonToken");
@@ -13,7 +18,7 @@ export const getAuth = () => {
 };
 
 /**
- * Clear auth and redirect to login
+ * Clear auth and redirect to login.
  */
 export const logout = (redirectTo = "/login") => {
   localStorage.removeItem("ozzonToken");
@@ -22,8 +27,8 @@ export const logout = (redirectTo = "/login") => {
 };
 
 /**
- * Authenticated fetch wrapper
- * Automatically attaches Bearer token and handles 401
+ * Authenticated fetch wrapper.
+ * Automatically attaches Bearer token and handles 401.
  */
 export const authFetch = async (url, options = {}) => {
   const auth = getAuth();
@@ -46,14 +51,11 @@ export const authFetch = async (url, options = {}) => {
 };
 
 /**
- * React hook to protect pages
- * Usage: call inside any page component
+ * React hook to protect pages.
  *
- * const { user } = useRequireAuth();                  // any logged-in user
- * const { user } = useRequireAuth({ adminOnly: true }); // admin only
+ * const { user } = useRequireAuth();                    // any logged-in user
+ * const { user } = useRequireAuth({ adminOnly: true });  // admin only
  */
-import { useEffect, useState } from "react";
-
 export const useRequireAuth = ({ adminOnly = false } = {}) => {
   const [user, setUser] = useState(null);
   const [checking, setChecking] = useState(true);
