@@ -18,6 +18,7 @@ import {
   Loader2,
   AlertCircle,
   ShoppingCart,
+  ClipboardList,
 } from "lucide-react";
 
 import ozzonVideo from "../assets/ozzon_scroll.mp4";
@@ -255,6 +256,15 @@ const HomePage = () => {
                 )}
               </Link>
 
+              {/* Orders icon */}
+              <Link
+                to="/orders"
+                className="flex items-center justify-center h-9 w-9 rounded-full border border-zinc-700 hover:border-[#ed1b35] transition-colors group"
+                aria-label="My Orders"
+              >
+                <ClipboardList className="h-4 w-4 text-zinc-400 group-hover:text-[#ed1b35] transition-colors" />
+              </Link>
+
               <span className="text-zinc-400 normal-case tracking-normal text-xs">
                 Hi,{" "}
                 <span className="text-white font-bold">
@@ -318,6 +328,17 @@ const HomePage = () => {
                     </span>
                   )}
                 </Link>
+
+                {/* Orders link in mobile menu */}
+                <Link
+                  to="/orders"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest"
+                >
+                  <ClipboardList className="h-4 w-4 text-[#ed1b35]" />
+                  My Orders
+                </Link>
+
                 <p className="text-zinc-400 text-xs">
                   Signed in as{" "}
                   <span className="text-white font-bold">

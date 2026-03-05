@@ -15,7 +15,7 @@ import { getAuth, authFetch } from "./auth/useAuth";
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 // ── API HELPERS ──
-const fetchCart = async (token) => {
+const fetchCart = async () => {
   const res = await authFetch(`${BASE_URL}/api/cart`);
   if (!res.ok) throw new Error("Failed to fetch cart");
   return res.json();
@@ -36,8 +36,6 @@ const clearCartApi = async () => {
 };
 
 const updateQuantity = async (productId, quantity) => {
-  // Remove then re-add with new quantity by using addToCart
-  // Backend: if item exists, it ADDS quantity. So we remove first then add with exact qty.
   await removeItem(productId);
   if (quantity > 0) {
     const res = await authFetch(`${BASE_URL}/api/cart`, {
@@ -68,7 +66,7 @@ export default function CartPage() {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [actionLoading, setActionLoading] = useState(null); // productId being acted on
+  const [actionLoading, setActionLoading] = useState(null);
   const [clearLoading, setClearLoading] = useState(false);
 
   // Redirect if not logged in
@@ -90,8 +88,7 @@ export default function CartPage() {
   const handleRemove = async (productId) => {
     setActionLoading(productId);
     try {
-      const updated = await removeItem(productId);
-      // Re-fetch to get populated product data
+      await removeItem(productId);
       const fresh = await fetchCart();
       setCart(fresh);
     } catch (e) {
@@ -132,9 +129,14 @@ export default function CartPage() {
 
   const items = cart?.items ?? [];
   const isEmpty = !loading && items.length === 0;
-
-  // Count total items
   const totalItems = items.reduce((sum, i) => sum + (i.quantity || 1), 0);
+
+  // Calculate total price if products have prices
+  const totalPrice = items.reduce((sum, item) => {
+    const price = item.product?.price || 0;
+    return sum + price * (item.quantity || 1);
+  }, 0);
+  const hasPrice = totalPrice > 0;
 
   return (
     <div
@@ -286,6 +288,11 @@ export default function CartPage() {
                             {product.brand}
                           </p>
                         )}
+                        {product?.price > 0 && (
+                          <p className="text-sm font-bold text-[#ed1b35] mb-2">
+                            Rs. {(product.price * qty).toLocaleString()}
+                          </p>
+                        )}
 
                         {/* Qty + Remove row */}
                         <div className="flex items-center gap-4 mt-3">
@@ -350,25 +357,41 @@ export default function CartPage() {
                         {items.length}
                       </span>
                     </div>
+                    {hasPrice && (
+                      <>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-zinc-400">Subtotal</span>
+                          <span className="font-bold text-white">
+                            Rs. {totalPrice.toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-sm border-t border-zinc-800 pt-3">
+                          <span className="text-white font-black">Total</span>
+                          <span className="text-[#ed1b35] font-black">
+                            Rs. {totalPrice.toLocaleString()}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                    <div className="flex justify-between text-xs pt-1">
+                      <span className="text-zinc-500">Payment</span>
+                      <span className="text-zinc-400 font-bold">
+                        Cash on Delivery
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="border-t border-zinc-800 pt-5 mb-6">
-                    <p className="text-xs text-zinc-500 leading-relaxed">
-                      To place an order or enquire about pricing, please contact
-                      us directly.
-                    </p>
-                  </div>
-
-                  <a
-                    href="/#contact"
-                    className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-[#ed1b35] text-white font-bold rounded hover:bg-[#c81529] transition-colors shadow-lg shadow-[#ed1b35]/20 uppercase tracking-widest text-sm"
+                  {/* ── PROCEED TO CHECKOUT ── */}
+                  <button
+                    onClick={() => navigate("/checkout")}
+                    className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-[#ed1b35] text-white font-bold rounded hover:bg-[#c81529] transition-colors shadow-lg shadow-[#ed1b35]/20 uppercase tracking-widest text-sm mb-3"
                   >
-                    Enquire Now <ArrowRight className="h-4 w-4" />
-                  </a>
+                    Proceed to Checkout <ArrowRight className="h-4 w-4" />
+                  </button>
 
                   <Link
                     to="/products"
-                    className="mt-3 w-full flex items-center justify-center gap-2 px-6 py-3 border border-zinc-700 text-zinc-400 font-bold rounded hover:border-[#ed1b35] hover:text-[#ed1b35] transition-colors text-sm uppercase tracking-widest"
+                    className="w-full flex items-center justify-center gap-2 px-6 py-3 border border-zinc-700 text-zinc-400 font-bold rounded hover:border-[#ed1b35] hover:text-[#ed1b35] transition-colors text-sm uppercase tracking-widest"
                   >
                     Continue Browsing
                   </Link>

@@ -5,6 +5,7 @@ import {
   Package,
   Layers,
   Users,
+  ShoppingBag, // NEW — Orders icon
   ChevronRight,
   LogOut,
   Menu,
@@ -49,6 +50,7 @@ export default function AdminLayout() {
     { to: "/admin/products", icon: Package, label: "Products" },
     { to: "/admin/categories", icon: Layers, label: "Categories" },
     { to: "/admin/users", icon: Users, label: "Users" },
+    { to: "/admin/orders", icon: ShoppingBag, label: "Orders" }, // NEW
   ];
 
   if (!user) return null;
