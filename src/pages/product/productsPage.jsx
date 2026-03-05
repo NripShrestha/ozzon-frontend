@@ -331,42 +331,68 @@ export function ProductsPage() {
               {!productsLoading && !productsError && products.length > 0 && (
                 <>
                   <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                    {products.map((product) => (
-                      <Link
-                        key={product._id}
-                        to={`/products/${product._id}`}
-                        className="group relative bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden hover:border-[#ed1b35] transition-all duration-300 hover:shadow-lg hover:shadow-[#ed1b35]/10"
-                      >
-                        <div className="aspect-square overflow-hidden bg-zinc-800">
-                          <img
-                            src={product.image?.url}
-                            alt={product.name}
-                            className="h-full w-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
-                            onError={(e) => {
-                              e.currentTarget.src =
-                                "https://images.unsplash.com/photo-1609952048180-7b35ea6b083b?w=600&q=80";
-                            }}
-                          />
-                        </div>
-                        <div className="p-6">
-                          <span className="text-[10px] font-bold text-[#ed1b35] uppercase tracking-[0.3em]">
-                            {getCategoryName(product.category)}
-                          </span>
-                          <h3 className="text-lg font-black text-white mt-2 mb-2 leading-tight">
-                            {product.name}
-                          </h3>
-                          {product.description && (
-                            <p className="text-zinc-500 text-sm mb-4 line-clamp-2 leading-relaxed">
-                              {product.description}
-                            </p>
-                          )}
-                          <span className="inline-flex items-center gap-2 text-[#ed1b35] font-bold text-sm uppercase tracking-widest group-hover:gap-3 transition-all">
-                            View Details <ArrowRight className="h-4 w-4" />
-                          </span>
-                        </div>
-                        <div className="absolute bottom-0 right-0 w-20 h-20 bg-[#ed1b35] opacity-0 group-hover:opacity-5 rounded-tl-full transition-opacity duration-300" />
-                      </Link>
-                    ))}
+                    {products.map((product) => {
+                      const inStock =
+                        product.stock !== undefined && product.stock > 0;
+                      return (
+                        <Link
+                          key={product._id}
+                          to={`/products/${product._id}`}
+                          className="group relative bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden hover:border-[#ed1b35] transition-all duration-300 hover:shadow-lg hover:shadow-[#ed1b35]/10"
+                        >
+                          <div className="aspect-square overflow-hidden bg-zinc-800 relative">
+                            <img
+                              src={product.image?.url}
+                              alt={product.name}
+                              className="h-full w-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
+                              onError={(e) => {
+                                e.currentTarget.src =
+                                  "https://images.unsplash.com/photo-1609952048180-7b35ea6b083b?w=600&q=80";
+                              }}
+                            />
+                            {/* Stock badge on image */}
+                            <div className="absolute top-3 left-3">
+                              <span
+                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
+                                  inStock
+                                    ? "bg-green-950/80 text-green-400 border border-green-800/60"
+                                    : "bg-red-950/80 text-red-400 border border-red-900/60"
+                                }`}
+                              >
+                                <span
+                                  className={`h-1.5 w-1.5 rounded-full ${inStock ? "bg-green-400" : "bg-red-400"}`}
+                                />
+                                {inStock ? "Available" : "Out of Stock"}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="p-6">
+                            <span className="text-[10px] font-bold text-[#ed1b35] uppercase tracking-[0.3em]">
+                              {getCategoryName(product.category)}
+                            </span>
+                            <h3 className="text-lg font-black text-white mt-2 mb-1 leading-tight">
+                              {product.name}
+                            </h3>
+                            {/* Price */}
+                            {product.price !== undefined &&
+                              product.price !== null && (
+                                <p className="text-white font-black text-xl mb-2">
+                                  ₹{product.price.toLocaleString("en-IN")}
+                                </p>
+                              )}
+                            {product.description && (
+                              <p className="text-zinc-500 text-sm mb-4 line-clamp-2 leading-relaxed">
+                                {product.description}
+                              </p>
+                            )}
+                            <span className="inline-flex items-center gap-2 text-[#ed1b35] font-bold text-sm uppercase tracking-widest group-hover:gap-3 transition-all">
+                              View Details <ArrowRight className="h-4 w-4" />
+                            </span>
+                          </div>
+                          <div className="absolute bottom-0 right-0 w-20 h-20 bg-[#ed1b35] opacity-0 group-hover:opacity-5 rounded-tl-full transition-opacity duration-300" />
+                        </Link>
+                      );
+                    })}
                   </div>
 
                   {/* Pagination */}

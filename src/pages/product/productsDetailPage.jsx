@@ -7,6 +7,8 @@ import {
   ShoppingCart,
   LogIn,
   Loader2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getAuth, authFetch } from "../auth/useAuth";
@@ -89,12 +91,100 @@ const DetailSkeleton = () => (
   </div>
 );
 
+// ── IMAGE GALLERY ──
+const ImageGallery = ({ product }) => {
+  const allImages = [product.image, ...(product.images || [])].filter(Boolean);
+
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const prev = () =>
+    setActiveIndex((i) => (i - 1 + allImages.length) % allImages.length);
+  const next = () => setActiveIndex((i) => (i + 1) % allImages.length);
+
+  return (
+    <div className="relative">
+      {/* Main image */}
+      <div className="aspect-square overflow-hidden rounded-lg bg-zinc-900 border border-zinc-800 shadow-2xl relative">
+        <img
+          src={allImages[activeIndex]?.url}
+          alt={product.name}
+          className="h-full w-full object-cover opacity-95 transition-opacity duration-300"
+          onError={(e) => {
+            e.currentTarget.src =
+              "https://images.unsplash.com/photo-1609952048180-7b35ea6b083b?w=600&q=80";
+          }}
+        />
+
+        {/* Prev / Next arrows — only if multiple images */}
+        {allImages.length > 1 && (
+          <>
+            <button
+              onClick={prev}
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 border border-zinc-700 flex items-center justify-center text-white hover:bg-[#ed1b35] hover:border-[#ed1b35] transition-all"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              onClick={next}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 border border-zinc-700 flex items-center justify-center text-white hover:bg-[#ed1b35] hover:border-[#ed1b35] transition-all"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+
+            {/* Dot indicators */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+              {allImages.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveIndex(i)}
+                  className={`h-1.5 rounded-full transition-all ${
+                    i === activeIndex ? "w-5 bg-[#ed1b35]" : "w-1.5 bg-zinc-500"
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Thumbnail strip */}
+      {allImages.length > 1 && (
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+          {allImages.map((img, i) => (
+            <button
+              key={i}
+              onClick={() => setActiveIndex(i)}
+              className={`flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-all ${
+                i === activeIndex
+                  ? "border-[#ed1b35]"
+                  : "border-zinc-700 opacity-60 hover:opacity-100"
+              }`}
+            >
+              <img
+                src={img?.url}
+                alt={`View ${i + 1}`}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src =
+                    "https://images.unsplash.com/photo-1609952048180-7b35ea6b083b?w=600&q=80";
+                }}
+              />
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className="absolute -bottom-6 -right-6 w-48 h-48 bg-[#ed1b35] opacity-5 blur-3xl rounded-full pointer-events-none" />
+    </div>
+  );
+};
+
 // ── ADD TO CART BUTTON ──
 const AddToCartButton = ({ productId }) => {
   const navigate = useNavigate();
   const auth = getAuth();
 
-  const [status, setStatus] = useState("idle"); // idle | loading | success | error
+  const [status, setStatus] = useState("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [qty, setQty] = useState(1);
 
@@ -103,10 +193,8 @@ const AddToCartButton = ({ productId }) => {
       navigate("/login");
       return;
     }
-
     setStatus("loading");
     setErrorMsg("");
-
     try {
       await addToCartApi(productId, qty);
       setStatus("success");
@@ -147,7 +235,6 @@ const AddToCartButton = ({ productId }) => {
 
   return (
     <div className="space-y-3">
-      {/* Qty selector */}
       <div className="flex items-center gap-3">
         <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
           Qty
@@ -173,7 +260,6 @@ const AddToCartButton = ({ productId }) => {
         </div>
       </div>
 
-      {/* Add to Cart + View Cart buttons — always both visible */}
       <div className="flex items-center gap-3 flex-wrap">
         <button
           onClick={handleAdd}
@@ -276,8 +362,8 @@ export function ProductDetailPage() {
   const specPairs = product?.specifications
     ? parseSpecifications(product.specifications)
     : null;
-
   const features = product?.features?.filter((f) => f?.trim()) ?? [];
+  const isInStock = product?.stock !== undefined && product.stock > 0;
 
   return (
     <div
@@ -323,21 +409,8 @@ export function ProductDetailPage() {
 
           {!loading && product && (
             <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-              {/* ── IMAGE ── */}
-              <div className="relative">
-                <div className="aspect-square overflow-hidden rounded-lg bg-zinc-900 border border-zinc-800 shadow-2xl">
-                  <img
-                    src={product.image?.url}
-                    alt={product.name}
-                    className="h-full w-full object-cover opacity-95"
-                    onError={(e) => {
-                      e.currentTarget.src =
-                        "https://images.unsplash.com/photo-1609952048180-7b35ea6b083b?w=600&q=80";
-                    }}
-                  />
-                </div>
-                <div className="absolute -bottom-6 -right-6 w-48 h-48 bg-[#ed1b35] opacity-5 blur-3xl rounded-full pointer-events-none" />
-              </div>
+              {/* ── IMAGE GALLERY ── */}
+              <ImageGallery product={product} />
 
               {/* ── INFO ── */}
               <div className="flex flex-col justify-center">
@@ -356,32 +429,40 @@ export function ProductDetailPage() {
                   )}
                 </div>
 
-                <h1 className="text-4xl md:text-5xl font-black text-white mb-5 leading-tight">
+                <h1 className="text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
                   {product.name}
                 </h1>
 
-                {product.description && (
-                  <p className="text-zinc-400 text-lg mb-6 leading-relaxed">
-                    {product.description}
-                  </p>
+                {/* ── PRICE ── */}
+                {product.price !== undefined && product.price !== null && (
+                  <div className="mb-5">
+                    <span className="text-3xl font-black text-white">
+                      ₹{product.price.toLocaleString("en-IN")}
+                    </span>
+                  </div>
                 )}
 
-                {/* Stock badge */}
+                {/* ── DESCRIPTION — preserves exact user formatting ── */}
+                {product.description && (
+                  <div className="text-zinc-400 text-base mb-6 leading-relaxed whitespace-pre-wrap">
+                    {product.description}
+                  </div>
+                )}
+
+                {/* Stock badge — Available / Out of Stock */}
                 {product.stock !== undefined && (
                   <div className="mb-6">
                     <span
                       className={`inline-flex items-center gap-2 px-3 py-1.5 rounded text-xs font-bold uppercase tracking-widest border ${
-                        product.stock > 0
+                        isInStock
                           ? "bg-green-950/50 border-green-800/50 text-green-400"
                           : "bg-red-950/50 border-red-900/50 text-red-400"
                       }`}
                     >
                       <span
-                        className={`h-1.5 w-1.5 rounded-full ${product.stock > 0 ? "bg-green-400" : "bg-red-400"}`}
+                        className={`h-1.5 w-1.5 rounded-full ${isInStock ? "bg-green-400" : "bg-red-400"}`}
                       />
-                      {product.stock > 0
-                        ? `In Stock — ${product.stock} units`
-                        : "Out of Stock"}
+                      {isInStock ? "Available" : "Out of Stock"}
                     </span>
                   </div>
                 )}
@@ -394,7 +475,7 @@ export function ProductDetailPage() {
                 {/* Divider */}
                 <div className="border-t border-zinc-800 mb-8" />
 
-                {/* Specifications — parsed grid */}
+                {/* Specifications */}
                 {specPairs && specPairs.length > 0 && (
                   <div className="mb-8">
                     <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-500 mb-4">
@@ -533,6 +614,11 @@ export function ProductDetailPage() {
                       <h3 className="text-base font-black text-white mt-1 mb-1 leading-tight">
                         {p.name}
                       </h3>
+                      {p.price !== undefined && p.price !== null && (
+                        <p className="text-white font-bold text-sm mb-1">
+                          ₹{p.price.toLocaleString("en-IN")}
+                        </p>
+                      )}
                       {p.description && (
                         <p className="text-zinc-500 text-sm line-clamp-2 leading-relaxed">
                           {p.description}

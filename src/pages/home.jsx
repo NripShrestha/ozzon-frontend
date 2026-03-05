@@ -19,6 +19,7 @@ import {
   AlertCircle,
   ShoppingCart,
   ClipboardList,
+  Phone,
 } from "lucide-react";
 
 import ozzonVideo from "../assets/ozzon_scroll.mp4";
@@ -201,7 +202,7 @@ const HomePage = () => {
         ".hero-text",
         { opacity: 1, y: 0 },
         { opacity: 0, y: -50, duration: 0.5 },
-        0.8,
+        0,
       );
     };
 
@@ -236,9 +237,6 @@ const HomePage = () => {
           <Link to="/products" className="hover:text-[#ed1b35] transition">
             Products
           </Link>
-          <a href="#contact" className="hover:text-[#ed1b35] transition">
-            Contact
-          </a>
 
           {auth ? (
             <div className="flex items-center gap-4">
@@ -305,13 +303,6 @@ const HomePage = () => {
             >
               Products
             </Link>
-            <a
-              href="#contact"
-              className="text-sm font-bold uppercase tracking-widest"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Contact
-            </a>
 
             {auth ? (
               <div className="flex flex-col gap-3">
@@ -689,140 +680,32 @@ const HomePage = () => {
           </div>
         </section>
 
-        {/* ── PARTNER CTA ── */}
-        <section className="relative py-28 overflow-hidden bg-black">
-          <div className="absolute inset-0 opacity-10">
-            <img
-              src="https://images.unsplash.com/photo-1765447650904-aeb3a8e17f2b?w=1200&q=80"
-              alt="Workshop"
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/70" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-1 bg-[#ed1b35]" />
-
-          <div className="relative mx-auto max-w-7xl px-6 lg:px-8 text-center">
-            <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#ed1b35] mb-4">
-              Partnership
-            </p>
-            <h2 className="text-4xl md:text-6xl font-black mb-6 leading-tight">
-              Become an <span className="text-[#ed1b35]">OZZON</span> Partner
-            </h2>
-            <p className="text-xl text-zinc-300 mb-10 max-w-2xl mx-auto leading-relaxed">
-              Join our network of trusted distributors and dealers. Unlock
-              premium products, competitive pricing, and comprehensive support.
-            </p>
-            <a
-              href="#contact"
-              className="inline-flex items-center gap-2 px-10 py-4 bg-[#ed1b35] text-white font-bold rounded hover:bg-white hover:text-black transition-all shadow-lg shadow-[#ed1b35]/30 uppercase tracking-widest text-sm"
-            >
-              Partner With Us <ArrowRight className="h-5 w-5" />
-            </a>
-          </div>
-        </section>
-
-        {/* ── CONTACT ── */}
-        <section id="contact" className="py-24 bg-[#1a1a1a]">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#ed1b35] mb-3">
-                Reach Out
-              </p>
-              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-                Get In <span className="text-[#ed1b35]">Touch</span>
-              </h2>
-              <p className="text-lg text-zinc-400">
-                Have questions? Our team is here to help you
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-              <div className="space-y-10">
-                {[
-                  {
-                    icon: Shield,
-                    title: "Quality Assurance",
-                    desc: "All our products undergo rigorous testing and meet international quality standards.",
-                  },
-                  {
-                    icon: MapPin,
-                    title: "Nationwide Network",
-                    desc: "With distributors in many parts of Nepal, we're always nearby.",
-                  },
-                  {
-                    icon: Zap,
-                    title: "24/7 Support",
-                    desc: "Our customer support team is available round the clock to assist you.",
-                  },
-                ].map(({ icon: Icon, title, desc }) => (
-                  <div key={title} className="flex gap-5">
-                    <div className="flex-shrink-0">
-                      <div className="h-12 w-12 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center">
-                        <Icon className="h-6 w-6 text-[#ed1b35]" />
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-white mb-1">
-                        {title}
-                      </h3>
-                      <p className="text-zinc-400 text-sm leading-relaxed">
-                        {desc}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-lg">
-                <div className="space-y-5">
-                  <div>
-                    <label className="block text-xs font-bold text-zinc-300 mb-2 uppercase tracking-widest">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#ed1b35] focus:border-transparent transition-all text-sm"
-                      placeholder="Your Name"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-zinc-300 mb-2 uppercase tracking-widest">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#ed1b35] focus:border-transparent transition-all text-sm"
-                      placeholder="your@email.com"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-zinc-300 mb-2 uppercase tracking-widest">
-                      Message
-                    </label>
-                    <textarea
-                      rows={4}
-                      className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#ed1b35] focus:border-transparent transition-all text-sm resize-none"
-                      placeholder="Your message..."
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    className="w-full px-6 py-4 bg-[#ed1b35] text-white font-bold rounded hover:bg-[#c81529] transition-colors shadow-lg shadow-[#ed1b35]/20 uppercase tracking-widest text-sm"
-                  >
-                    Send Message
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* ── FOOTER ── */}
         <footer className="py-16 border-t border-zinc-900 bg-black text-center">
           <Battery className="mx-auto mb-4 text-[#ed1b35] animate-pulse" />
-          <p className="text-[9px] text-zinc-700 uppercase tracking-[0.6em]">
+          <p className="text-[9px] text-zinc-700 uppercase tracking-[0.6em] mb-6">
             OZZON Industrial Excellence 2026
           </p>
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-xs font-bold text-zinc-300 uppercase tracking-widest mb-1">
+              Get in Touch
+            </p>
+            <a
+              href="tel:+9779801037535"
+              className="flex items-center gap-2 text-zinc-400 hover:text-[#ed1b35] transition-colors text-sm"
+            >
+              <Phone className="h-3.5 w-3.5" />
+              +977 9801037535
+            </a>
+            <a
+              href="tel:+9779851422535"
+              className="flex items-center gap-2 text-zinc-400 hover:text-[#ed1b35] transition-colors text-sm"
+            >
+              <Phone className="h-3.5 w-3.5" />
+              +977 9851422535
+            </a>
+            <p className="text-zinc-500 text-xs mt-1">Kumari Kaji Shrestha</p>
+          </div>
         </footer>
       </div>
     </div>
